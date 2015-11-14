@@ -12,11 +12,13 @@ class MoviesController < ApplicationController
 
   def index
     order = params[:sort]
+    
     if(order)
-      @movies = Movie.all.order(order)
+      @movies = get_movies_filtered_by_rating.order(order)
     else
-      @movies = Movie.all
+      @movies = get_movies_filtered_by_rating
     end
+    @all_ratings=Movie.get_all_ratings
   end
 
   def new
@@ -45,6 +47,16 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+  
+  private
+  def get_movies_filtered_by_rating
+    ratings = params[:ratings]
+    if(ratings && ratings.length > 0)
+      Movie.where({ rating: ratings.keys})
+    else
+      Movie.all
+    end
   end
 
 end
